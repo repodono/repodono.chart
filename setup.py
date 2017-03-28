@@ -16,7 +16,9 @@ Programming Language :: Python :: 3.6
 """.strip().splitlines()
 
 package_json = {
-    "dependencies": {},
+    "dependencies": {
+        "chart.js": "~2.5.0",
+    },
     "devDependencies": {
         "eslint": "~3.15.0",
     }
@@ -48,11 +50,17 @@ setup(
     install_requires=[
         'setuptools',
         # -*- Extra requirements: -*-
+        'nunja',
     ],
     extras_require={
         'dev': [
             'calmjs.dev>=1.0.2,<2',
         ],
+    },
+    extras_calmjs={
+        'node_modules': {
+            'Chart.js': 'chart.js/dist/Chart.js',
+        },
     },
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*',
     entry_points={
