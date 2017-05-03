@@ -51,6 +51,7 @@ setup(
         'setuptools',
         # -*- Extra requirements: -*-
         'nunja',
+        'repodono.jobs',
     ],
     extras_require={
         'dev': [
@@ -64,6 +65,9 @@ setup(
     },
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*',
     entry_points={
+        'calmjs.module': [
+            'repodono.chart = repodono.chart',
+        ],
         'calmjs.module.tests': [
             'repodono.chart.tests = repodono.chart.tests',
         ],
