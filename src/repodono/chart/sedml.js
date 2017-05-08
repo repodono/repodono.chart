@@ -1,25 +1,33 @@
 'use strict';
 
 
-var Chart = require('Chart.js');
+var Chart = require('Chart');
 var Client = require('repodono/jobs/client').Client;
 
 
+var default_kwargs = {
+    'id_status': 'status',
+    'id_render': 'render',
+};
+
 var ChartClient = function(kwargs) {
     Client.call(this, kwargs);
+    for (var key in default_kwargs) {
+        this[key] = kwargs && kwargs[key] || default_kwargs[key];
+    }
 };
 ChartClient.prototype = Object.create(Client.prototype);
 ChartClient.prototype.constructor = ChartClient;
 
 
 ChartClient.prototype.set_status_msg = function(state, msg) {
-    document.getElementById('status').innerHTML = state + ': ' + msg;
+    document.getElementById(this.id_status).innerHTML = state + ': ' + msg;
 };
 
 
 ChartClient.prototype.generate_request = function(xhr) {
-    document.getElementById('status').innerHTML = '';
-    document.getElementById('render').innerHTML = '';
+    document.getElementById(this.id_status).innerHTML = '';
+    document.getElementById(this.id_render).innerHTML = '';
     xhr.setRequestHeader(
         'Content-Type', 'application/x-www-form-urlencoded');
     // XXX the identifiers will need to be confirmed...
@@ -34,7 +42,7 @@ ChartClient.prototype.response_job_success = function(poll_url, keys) {
     keys.forEach(function (plot) {
         var plot_url = poll_url + '/' + plot;
         var canvas = document.createElement('canvas');
-        document.getElementById('render').appendChild(canvas);
+        document.getElementById(this.id_render).appendChild(canvas);
         self.render(canvas, plot_url);
     });
 };

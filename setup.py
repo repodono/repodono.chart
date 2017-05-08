@@ -60,7 +60,7 @@ setup(
     },
     extras_calmjs={
         'node_modules': {
-            'Chart.js': 'chart.js/dist/Chart.js',
+            'Chart': 'chart.js/dist/Chart.js',
         },
     },
     python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*',
