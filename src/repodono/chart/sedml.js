@@ -42,7 +42,7 @@ ChartClient.prototype.response_job_success = function(poll_url, keys) {
     keys.forEach(function (plot) {
         var plot_url = poll_url + '/' + plot;
         var canvas = document.createElement('canvas');
-        document.getElementById(this.id_render).appendChild(canvas);
+        document.getElementById(self.id_render).appendChild(canvas);
         self.render(canvas, plot_url);
     });
 };
@@ -62,7 +62,7 @@ ChartClient.prototype.render = function(canvas, plot_url) {
 
     var before = function (xhr) {
         xhr.open('GET', plot_url);
-    }
+    };
 
     this.raw_request(before, after);
 };

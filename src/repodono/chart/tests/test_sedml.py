@@ -5,8 +5,6 @@ Manager test case
 
 import unittest
 
-from os.path import isdir
-
 from repodono.chart import sedml
 
 

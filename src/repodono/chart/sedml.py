@@ -3,7 +3,6 @@
 Very rudimentary example.
 """
 
-from os.path import normpath
 from os.path import sep
 from repodono.jobs.manager import JobManager
 
