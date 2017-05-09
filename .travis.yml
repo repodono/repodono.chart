@@ -1,0 +1,136 @@
+sudo: false
+matrix:
+  allow_failures:
+    - os: osx
+    - python: 3.7-dev
+    - env: TRAVIS_NODE_VERSION=7
+  include:
+    - language: python
+      dist: trusty
+      python: 3.4
+      env:
+        - TRAVIS_NODE_VERSION=4.6
+        - BROWSER=Chrome
+      addons:
+        apt:
+          sources:
+            - google-chrome
+          packages:
+            - google-chrome-stable
+    - language: python
+      python: 3.5
+      env:
+        - TRAVIS_NODE_VERSION=6.9
+        - BROWSER=Firefox
+    - language: python
+      python: 3.6
+      env:
+        - TRAVIS_NODE_VERSION=7
+        - BROWSER=PhantomJS
+    - language: python
+      python: 3.7-dev
+      env:
+        - TRAVIS_NODE_VERSION=7
+        - BROWSER=PhantomJS
+    # test different versions of Node.js on osx
+    - language: node_js
+      node_js: 4.6
+      os: osx
+      env:
+        - TRAVIS_PYTHON_VERSION=3.4.5
+        - BROWSER=PhantomJS
+    - language: node_js
+      node_js: 6.9
+      os: osx
+      env:
+        - TRAVIS_PYTHON_VERSION=3.5.3
+        - BROWSER=Safari
+    - language: node_js
+      node_js: 7.4
+      os: osx
+      env:
+        - TRAVIS_PYTHON_VERSION=3.6.0
+        - BROWSER=Safari
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update || brew update ;
+      brew install pyenv ;
+      brew outdated pyenv || brew upgrade pyenv ;
+      pyenv install $TRAVIS_PYTHON_VERSION ;
+      pyenv global $TRAVIS_PYTHON_VERSION ;
+      eval "$(pyenv init -)" ;
+      python --version ;
+      python -m pip install --user virtualenv ;
+      python -m virtualenv ~/.venv ;
+      source ~/.venv/bin/activate ;
+    else
+      export DISPLAY=:99.0 ;
+      sh -e /etc/init.d/xvfb start ;
+      rm -rf ~/.nvm ;
+      git clone https://github.com/creationix/nvm.git ~/.nvm ;
+      (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags` );
+      source ~/.nvm/nvm.sh ;
+      nvm install "$TRAVIS_NODE_VERSION" ;
+    fi
+  - node --version
+  - npm --version
+
+install:
+  - pip install coverage flake8
+  - pip install aiohttp
+  - pip install -r requirements_dev.txt
+  - if [[ ! `python -c 'import sys;print(".".join(str(i) for i in sys.version_info))'` < "3.5" ]]; then
+      pip install sanic;
+    fi
+
+  - python setup.py develop
+
+  # Install the environment for the JS tests via karma
+  - calmjs npm repodono.chart[requirejs,dev] --install -D
+
+  # out-of-band installation of platform specific dependencies
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      npm install karma-safari-launcher ;
+    fi
+
+script:
+  - flake8 setup.py src
+  - eslint "src/**/*.js"
+
+  - coverage run --include=src/* -m unittest repodono.chart.tests.make_suite
+  - coverage report -m
+
+  # generate bundle/tests
+  - mkdir manual
+  # could simplify this if calmjs.rjs supports parents source-map-method
+  - calmjs rjs repodono.jobs nunja -w --export-target=deps.js
+
+  - calmjs karma --artifact=deps.js -c --cover-test --browser=$BROWSER rjs repodono.chart --build-dir=manual --source-map-method=explicit --bundle-map-method=explicit -w
+
+after_success:
+  - coverage report -m
+  # only submit coverage when testing under linux.
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      rvm default;
+      gem install coveralls-lcov;
+      export PROJ_DIR=`pwd`/;
+      export PATH=$PATH:`pwd`/node_modules/.bin;
+      npm install remap-istanbul;
+      pip install coveralls;
+      cd manual;
+      remap-istanbul -i ../coverage/coverage.json -t lcovonly -o remapped.lcov;
+      sed -i "s#SF:../#SF:#" remapped.lcov;
+      sed -i "s#SF:${PROJ_DIR}#SF:#" remapped.lcov;
+      cd ..;
+      echo "running coveralls-lcov conversion";
+      coveralls-lcov -v -n manual/remapped.lcov > coverage.json ;
+      echo "running coveralls with merge";
+      coveralls --merge=coverage.json ;
+    fi
+
+branches:
+  only:
+    - testing
+    - master
+    - 1.0.x

@@ -7,8 +7,6 @@ Development Status :: 3 - Alpha
 License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
 Operating System :: OS Independent
 Programming Language :: JavaScript
-Programming Language :: Python :: 2.7
-Programming Language :: Python :: 3.3
 Programming Language :: Python :: 3.4
 Programming Language :: Python :: 3.5
 Programming Language :: Python :: 3.6
@@ -53,6 +51,12 @@ setup(
         'repodono.jobs',
     ],
     extras_require={
+        'calmjs': [
+            'calmjs>=2.1.0',
+        ],
+        'requirejs': [
+            'calmjs.rjs',
+        ],
         'dev': [
             'calmjs.dev>=1.0.2,<2',
         ],
@@ -62,7 +66,7 @@ setup(
             'Chart': 'chart.js/dist/Chart.js',
         },
     },
-    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*',
+    python_requires='>=3.4',
     entry_points={
         'calmjs.module': [
             'repodono.chart = repodono.chart',

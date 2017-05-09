@@ -1,0 +1,7 @@
+# XXX to be removed when calmjs.dev-1.1.0 is released
+-e git+https://github.com/calmjs/calmjs.dev.git#egg=calmjs.dev
+# XXX to be removed when calmjs.rjs-1.1.0 is released
+-e git+https://github.com/calmjs/calmjs.rjs.git#egg=calmjs.rjs
+
+-e git+https://github.com/calmjs/nunja.git#egg=nunja
+-e git+https://github.com/repodono/repodono.jobs.git#egg=repodono.jobs
